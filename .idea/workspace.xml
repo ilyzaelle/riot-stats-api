@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d348f8e1-4550-4d85-a758-3cd3a69d6cb3" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="Interface" />
+      </list>
+    </option>
+  </component>
+  <component name="HttpClientEndpointsTabState">
+    <option name="cachedRequestData" value="&lt;CachedHttpClientTabRequests&gt;&#10;  &lt;entry key=&quot;dd19a62b1ba4a2feb587dd9078c1bbd29d5ae5dd&quot; value=&quot;###&amp;#10;GET http://localhost:8080/api/health&quot; /&gt;&#10;  &lt;entry key=&quot;ab8b1b2ab683d24171942cf21ff80cb05228ca7a&quot; value=&quot;###&amp;#10;GET http://localhost:8080/api/match-data&quot; /&gt;&#10;&lt;/CachedHttpClientTabRequests&gt;" />
+  </component>
+  <component name="HttpClientOnboardingState">{
+  &quot;isOnboardingCommentShown&quot;: true
+}</component>
+  <component name="HttpClientSelectedEnvironments">
+    <file url="jar://$APPLICATION_HOME_DIR$/plugins/restClient/lib/restClient.jar!/com/intellij/ws/rest/client/requests/collection/get-requests.http" environment="test" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="345yLwsKj47CIWu4yNm0U1OsFfv" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "HTTP Request.All in RiotStatsApiApplication.executor": "Run",
+    "HTTP Request.All in generated-requests.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication (1) | #1.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication (1) | #2.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #1.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #10.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #11.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #12.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #13.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #2.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #3.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #4.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #5.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #6.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #7.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #8.executor": "Run",
+    "HTTP Request.RiotStatsApiApplication | #9.executor": "Run",
+    "HTTP Request.generated-requests | #1.executor": "Run",
+    "HTTP Request.generated-requests | #2.executor": "Run",
+    "Maven.riot-stats-api [-U,clean,package].executor": "Run",
+    "Maven.riot-stats-api [-U,clean,spring-boot:run].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "954",
+    "RequestMappingsPanelWidth1": "953",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "Spring Boot.RiotStatsApiApplication (1).executor": "Run",
+    "Spring Boot.RiotStatsApiApplication.executor": "Run",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/rl213572/Documents/riot-stats-api",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "build.tools",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\rl213572\Documents\riot-stats-api\src\main\java\but\bdd\riotstatsapi\dto" />
+      <recent name="C:\Users\rl213572\Documents\riot-stats-api\src\main\java\but\bdd\riot_stats_api" />
+    </key>
+  </component>
+  <component name="RequestMappingsEndpointTabSettings">
+    <option name="showLibraryMappings" value="false" />
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn -U clean spring-boot:run " />
+      <command value="mvn -U clean package" />
+    </option>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationStatuses">
+      <map>
+        <entry key="HttpClient.HttpRequestRunConfigurationType">
+          <value>
+            <map>
+              <entry key="RiotStatsApiApplication | #10" value="STOPPED" />
+              <entry key="RiotStatsApiApplication | #11" value="STOPPED" />
+              <entry key="RiotStatsApiApplication | #12" value="STOPPED" />
+              <entry key="RiotStatsApiApplication | #13" value="STOPPED" />
+              <entry key="RiotStatsApiApplication | #8" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="HTTP Request.RiotStatsApiApplication | #8">
+    <configuration name="RiotStatsApiApplication | #10" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/RiotStatsApiApplication.http" executionIdentifier="#10" index="10" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="RiotStatsApiApplication | #11" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/RiotStatsApiApplication.http" executionIdentifier="#11" index="11" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="RiotStatsApiApplication | #12" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/RiotStatsApiApplication.http" executionIdentifier="#12" index="12" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="RiotStatsApiApplication | #13" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/RiotStatsApiApplication.http" executionIdentifier="#13" index="13" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="RiotStatsApiApplication | #8" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/RiotStatsApiApplication.http" executionIdentifier="#8" index="8" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="HTTP Request.RiotStatsApiApplication | #10" />
+      <item itemvalue="HTTP Request.RiotStatsApiApplication | #11" />
+      <item itemvalue="HTTP Request.RiotStatsApiApplication | #12" />
+      <item itemvalue="HTTP Request.RiotStatsApiApplication | #13" />
+      <item itemvalue="HTTP Request.RiotStatsApiApplication | #8" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="HTTP Request.RiotStatsApiApplication | #8" />
+        <item itemvalue="HTTP Request.RiotStatsApiApplication | #10" />
+        <item itemvalue="HTTP Request.RiotStatsApiApplication | #13" />
+        <item itemvalue="HTTP Request.RiotStatsApiApplication | #12" />
+        <item itemvalue="HTTP Request.RiotStatsApiApplication | #11" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d348f8e1-4550-4d85-a758-3cd3a69d6cb3" name="Changes" comment="" />
+      <created>1760517675409</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1760517675409</updated>
+      <workItem from="1760521049351" duration="12726000" />
+      <workItem from="1760534743760" duration="4584000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

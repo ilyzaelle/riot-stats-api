@@ -1,0 +1,1036 @@
+openapi: 3.0.0
+info:
+  title: Riot Stats API
+  version: 1.0.0
+  description: >
+    API REST pour trois collections MongoDB: match_ids, players, match_data.
+    Les identifiants sont:
+    - match_ids: matchId
+    - players: puuid
+    - match_data: metadata.matchId
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: match-ids
+    description: Gestion des matchIds (liste d'IDs à traiter)
+  - name: players
+    description: Joueurs classés par tier/rank (document par PUUID)
+  - name: match-data
+    description: Détails complets d'une partie (metadata + info)
+
+paths:
+  /api/health:
+    get:
+      tags: [match-ids]
+      summary: Healthcheck simple
+      operationId: healthCheck
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: "UP" }
+
+  ##########################
+  # MATCH IDS (key = matchId)
+  ##########################
+  /api/match-ids:
+    get:
+      tags: [match-ids]
+      summary: Lister les match_ids
+      operationId: listMatchIds
+      description: Liste paginée, filtrable par tier et rank.
+      parameters:
+        - in: query
+          name: tier
+          schema: { $ref: "#/components/schemas/Tier" }
+        - in: query
+          name: rank
+          schema: { $ref: "#/components/schemas/Rank" }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 0, default: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: sort
+          schema: { type: string, example: "matchId,asc" }
+          description: "Champ,ordre (ex. matchId,asc | tier,desc)"
+      responses:
+        "200":
+          description: Page de résultats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageMatchId"
+    post:
+      tags: [match-ids]
+      summary: Créer un matchId
+      operationId: createMatchId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MatchId" }
+      responses:
+        "201":
+          description: Créé
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchId" }
+        "409":
+          description: Conflit (matchId déjà existant)
+
+  /api/match-ids/bulk:
+    post:
+      tags: [match-ids]
+      summary: Upsert en lot (bulk upsert)
+      operationId: bulkUpsertMatchIds
+      description: Crée ou met à jour une liste de documents (clé = matchId).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: "#/components/schemas/MatchId" }
+      responses:
+        "200":
+          description: Résultat du bulk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inserted: { type: integer }
+                  updated: { type: integer }
+                  total:   { type: integer }
+
+  /api/match-ids/{matchId}:
+    get:
+      tags: [match-ids]
+      summary: Récupérer par matchId (clé métier)
+      operationId: getMatchIdByMatchId
+      parameters:
+        - in: path
+          name: matchId
+          required: true
+          schema: { type: string, example: "NA1_5348438296" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchId" }
+          links:
+            matchDataByMatchId:
+              operationId: getMatchDataByMatchId
+              parameters:
+                matchId: "$response.body#/matchId"
+        "404":
+          description: Introuvable
+    put:
+      tags: [match-ids]
+      summary: Remplacer (PUT) un matchId
+      operationId: putMatchIdByMatchId
+      parameters:
+        - in: path
+          name: matchId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MatchId" }
+      responses:
+        "200":
+          description: Mis à jour
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchId" }
+        "404":
+          description: Introuvable
+    patch:
+      tags: [match-ids]
+      summary: Mise à jour partielle (PATCH) par matchId
+      operationId: patchMatchIdByMatchId
+      parameters:
+        - in: path
+          name: matchId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                tier: { $ref: "#/components/schemas/Tier" }
+                rank: { $ref: "#/components/schemas/Rank" }
+      responses:
+        "200":
+          description: Mis à jour
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchId" }
+        "404":
+          description: Introuvable
+    delete:
+      tags: [match-ids]
+      summary: Supprimer par matchId
+      operationId: deleteMatchIdByMatchId
+      parameters:
+        - in: path
+          name: matchId
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Supprimé
+        "404":
+          description: Introuvable
+
+  /api/match-ids/stats/count:
+    get:
+      tags: [match-ids]
+      summary: Compter les documents (option filtres)
+      operationId: countMatchIds
+      parameters:
+        - in: query
+          name: tier
+          schema: { $ref: "#/components/schemas/Tier" }
+        - in: query
+          name: rank
+          schema: { $ref: "#/components/schemas/Rank" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer, example: 12345 }
+
+  /api/match-ids/stats/distinct-tiers:
+    get:
+      tags: [match-ids]
+      summary: Obtenir la liste des tiers distincts
+      operationId: distinctTiersInMatchIds
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: string, example: "PLATINUM" }
+
+  # Relation: match_ids -> match_data
+  /api/match-ids/{matchId}/data:
+    get:
+      tags: [match-ids, match-data]
+      summary: Récupérer le document match_data associé à ce matchId
+      operationId: getMatchDataFromMatchId
+      parameters:
+        - in: path
+          name: matchId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchData" }
+        "404":
+          description: Introuvable
+
+  ##########################
+  # PLAYERS (key = puuid)
+  ##########################
+  /api/players:
+    get:
+      tags: [players]
+      summary: Lister les players
+      operationId: listPlayers
+      description: Liste paginée, filtrable par tier/rank, bornes LP, flags et tri.
+      parameters:
+        - in: query
+          name: tier
+          schema: { $ref: "#/components/schemas/Tier" }
+        - in: query
+          name: rank
+          schema: { $ref: "#/components/schemas/Rank" }
+        - in: query
+          name: minLp
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: maxLp
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: veteran
+          schema: { type: boolean }
+        - in: query
+          name: inactive
+          schema: { type: boolean }
+        - in: query
+          name: freshBlood
+          schema: { type: boolean }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 0, default: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: sort
+          schema: { type: string, example: "leaguePoints,desc" }
+          description: "champ,ordre (ex. leaguePoints,desc | wins,desc | tier,asc)"
+      responses:
+        "200":
+          description: Page de players
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PagePlayer" }
+    post:
+      tags: [players]
+      summary: Créer un player
+      operationId: createPlayer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Player" }
+      responses:
+        "201":
+          description: Créé
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Player" }
+        "409":
+          description: Conflit (puuid déjà existant)
+
+  /api/players/bulk:
+    post:
+      tags: [players]
+      summary: Upsert en lot (clé = puuid)
+      operationId: bulkUpsertPlayers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: "#/components/schemas/Player" }
+      responses:
+        "200":
+          description: Résultat du bulk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inserted: { type: integer }
+                  updated: { type: integer }
+                  total:   { type: integer }
+
+  /api/players/{puuid}:
+    get:
+      tags: [players]
+      summary: Récupérer par puuid
+      operationId: getPlayerByPuuid
+      parameters:
+        - in: path
+          name: puuid
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Player" }
+        "404":
+          description: Introuvable
+    put:
+      tags: [players]
+      summary: Remplacer un player (PUT) par puuid
+      operationId: putPlayerByPuuid
+      parameters:
+        - in: path
+          name: puuid
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Player" }
+      responses:
+        "200":
+          description: Mis à jour
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Player" }
+        "404":
+          description: Introuvable
+    patch:
+      tags: [players]
+      summary: Mise à jour partielle (PATCH) par puuid
+      operationId: patchPlayerByPuuid
+      parameters:
+        - in: path
+          name: puuid
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/PlayerUpdate"
+      responses:
+        "200":
+          description: Mis à jour
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Player" }
+        "404":
+          description: Introuvable
+    delete:
+      tags: [players]
+      summary: Supprimer par puuid
+      operationId: deletePlayerByPuuid
+      parameters:
+        - in: path
+          name: puuid
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Supprimé
+        "404":
+          description: Introuvable
+
+  /api/players/stats/count:
+    get:
+      tags: [players]
+      summary: Compte de players (filtres optionnels)
+      operationId: countPlayers
+      parameters:
+        - in: query
+          name: tier
+          schema: { $ref: "#/components/schemas/Tier" }
+        - in: query
+          name: rank
+          schema: { $ref: "#/components/schemas/Rank" }
+        - in: query
+          name: minLp
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: maxLp
+          schema: { type: integer, minimum: 0 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer, example: 4242 }
+
+  /api/players/stats/leaderboard:
+    get:
+      tags: [players]
+      summary: Leaderboard (tri LP, wins, winrate)
+      operationId: playersLeaderboard
+      description: "Leaderboard trié (par défaut LP décroissant)."
+      parameters:
+        - in: query
+          name: by
+          schema:
+            type: string
+            enum: [lp, wins, winrate]
+            default: lp
+        - in: query
+          name: tier
+          schema: { $ref: "#/components/schemas/Tier" }
+        - in: query
+          name: rank
+          schema: { $ref: "#/components/schemas/Rank" }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 500, default: 100 }
+      responses:
+        "200":
+          description: Top N players
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Player" }
+
+  /api/players/stats/winrate/{puuid}:
+    get:
+      tags: [players]
+      summary: Winrate d’un player
+      operationId: playerWinrate
+      parameters:
+        - in: path
+          name: puuid
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  puuid: { type: string }
+                  wins: { type: integer }
+                  losses: { type: integer }
+                  winrate:
+                    type: number
+                    format: float
+                    example: 49.3
+
+  # Relation: players -> matches
+  /api/players/{puuid}/matches:
+    get:
+      tags: [players, match-data]
+      summary: Lister les matchs d’un player (PUUID)
+      operationId: getMatchDataForPlayer
+      parameters:
+        - in: path
+          name: puuid
+          required: true
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 0, default: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Page de match_data
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PageMatchData" }
+
+  ##########################
+  # MATCH DATA (key = matchId)
+  ##########################
+  /api/match-data:
+    get:
+      tags: [match-data]
+      summary: Lister les match_data
+      operationId: listMatchData
+      description: >
+        Liste paginée, filtrable par matchId, platformId, queueId, gameVersion et
+        bornes de timestamps/durée.
+      parameters:
+        - in: query
+          name: matchId
+          schema: { type: string }
+        - in: query
+          name: platformId
+          schema: { type: string, example: "NA1" }
+        - in: query
+          name: queueId
+          schema: { type: integer, example: 440 }
+        - in: query
+          name: gameVersion
+          schema: { type: string, example: "15.16.704.6097" }
+        - in: query
+          name: startTimeFrom
+          schema: { type: integer, format: int64, description: "epoch ms" }
+        - in: query
+          name: startTimeTo
+          schema: { type: integer, format: int64 }
+        - in: query
+          name: durationMin
+          schema: { type: integer, description: "seconds" }
+        - in: query
+          name: durationMax
+          schema: { type: integer, description: "seconds" }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 0, default: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: sort
+          schema: { type: string, example: "info.gameEndTimestamp,desc" }
+      responses:
+        "200":
+          description: Page de match_data
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PageMatchData" }
+    post:
+      tags: [match-data]
+      summary: Créer un document match_data
+      operationId: createMatchData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MatchData" }
+      responses:
+        "201":
+          description: Créé
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchData" }
+        "409":
+          description: Conflit (déjà présent pour ce matchId)
+
+  /api/match-data/bulk:
+    post:
+      tags: [match-data]
+      summary: Upsert en lot (clé = metadata.matchId)
+      operationId: bulkUpsertMatchData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: "#/components/schemas/MatchData" }
+      responses:
+        "200":
+          description: Résultat du bulk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inserted: { type: integer }
+                  updated: { type: integer }
+                  total:   { type: integer }
+
+  /api/match-data/{matchId}:
+    get:
+      tags: [match-data]
+      summary: Récupérer par matchId (clé métier)
+      operationId: getMatchDataByMatchId
+      parameters:
+        - in: path
+          name: matchId
+          required: true
+          schema: { type: string, example: "NA1_5348438296" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchData" }
+          links:
+            playersInMatch:
+              operationId: getPlayersForMatch
+              parameters:
+                matchId: "$response.body#/metadata/matchId"
+        "404":
+          description: Introuvable
+    delete:
+      tags: [match-data]
+      summary: Supprimer par matchId
+      operationId: deleteMatchDataByMatchId
+      parameters:
+        - in: path
+          name: matchId
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Supprimé
+        "404":
+          description: Introuvable
+
+  # Relation: match_data -> players list
+  /api/match-data/{matchId}/players:
+    get:
+      tags: [match-data, players]
+      summary: Lister les players impliqués dans ce match (documents players)
+      operationId: getPlayersForMatch
+      parameters:
+        - in: path
+          name: matchId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Player" }
+        "404":
+          description: Introuvable
+
+  /api/match-data/participants/by-puuid/{puuid}:
+    get:
+      tags: [match-data]
+      summary: Chercher toutes les parties d’un joueur (PUUID)
+      operationId: getMatchesByPuuid
+      parameters:
+        - in: path
+          name: puuid
+          required: true
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 0, default: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Liste des parties où ce PUUID apparaît
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PageMatchData" }
+          links:
+            playerDoc:
+              operationId: getPlayerByPuuid
+              parameters:
+                puuid: "$request.path.puuid"
+
+  /api/match-data/stats/durations:
+    get:
+      tags: [match-data]
+      summary: Stats de durée des parties
+      operationId: matchDurationsStats
+      parameters:
+        - in: query
+          name: queueId
+          schema: { type: integer }
+        - in: query
+          name: platformId
+          schema: { type: string }
+        - in: query
+          name: startTimeFrom
+          schema: { type: integer, format: int64 }
+        - in: query
+          name: startTimeTo
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Min/Max/Avg
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  min: { type: integer, example: 1023 }
+                  max: { type: integer, example: 3123 }
+                  avg: { type: number, format: float, example: 1682.4 }
+
+  /api/match-data/stats/champions:
+    get:
+      tags: [match-data]
+      summary: Fréquences de champions (top N)
+      operationId: championFrequency
+      parameters:
+        - in: query
+          name: byTeam
+          schema: { type: boolean, default: false }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 500, default: 50 }
+      responses:
+        "200":
+          description: Top champions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    championId: { type: integer }
+                    count: { type: integer }
+
+  /api/match-data/stats/winrate-by-champion:
+    get:
+      tags: [match-data]
+      summary: Winrate par champion (optionnellement filtré)
+      operationId: winrateByChampion
+      parameters:
+        - in: query
+          name: queueId
+          schema: { type: integer }
+        - in: query
+          name: platformId
+          schema: { type: string }
+      responses:
+        "200":
+          description: Winrate par champion
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    championId: { type: integer }
+                    games: { type: integer }
+                    wins: { type: integer }
+                    winrate: { type: number, format: float, example: 52.3 }
+
+components:
+  schemas:
+    Tier:
+      type: string
+      description: Palier de league
+      enum: [IRON, BRONZE, SILVER, GOLD, PLATINUM, EMERALD, DIAMOND, MASTER, GRANDMASTER, CHALLENGER]
+      example: PLATINUM
+
+    Rank:
+      type: string
+      description: Division au sein du palier
+      enum: [I, II, III, IV]
+      example: I
+
+    ##########################
+    # MATCH IDS SCHEMAS
+    ##########################
+    MatchId:
+      type: object
+      additionalProperties: false
+      properties:
+        matchId:
+          type: string
+          example: "NA1_5348438296"
+        tier:
+          $ref: "#/components/schemas/Tier"
+        rank:
+          $ref: "#/components/schemas/Rank"
+      required: [matchId, tier, rank]
+
+    PageMatchId:
+      type: object
+      properties:
+        content:
+          type: array
+          items: { $ref: "#/components/schemas/MatchId" }
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 50
+        totalElements:
+          type: integer
+          example: 1234
+        totalPages:
+          type: integer
+          example: 25
+        sort:
+          type: string
+          example: "matchId,asc"
+
+    ##########################
+    # PLAYERS SCHEMAS
+    ##########################
+    PlayerUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        tier: { $ref: "#/components/schemas/Tier" }
+        rank: { $ref: "#/components/schemas/Rank" }
+        leaguePoints: { type: integer, minimum: 0 }
+        wins: { type: integer, minimum: 0 }
+        losses: { type: integer, minimum: 0 }
+        veteran: { type: boolean }
+        inactive: { type: boolean }
+        freshBlood: { type: boolean }
+
+    Player:
+      type: object
+      additionalProperties: false
+      properties:
+        puuid:
+          type: string
+          description: Riot PUUID (identifiant unique global)
+          example: "CEAj3J8ZSyHIHaARmGnWDbQJ34-QMCgrdueWLRKvPUSEaSAtvkKBMRM1QP5FojYGOnNb6Gx-6eqYMQ"
+        tier: { $ref: "#/components/schemas/Tier" }
+        rank: { $ref: "#/components/schemas/Rank" }
+        leaguePoints: { type: integer, minimum: 0, example: 72 }
+        wins: { type: integer, minimum: 0, example: 106 }
+        losses: { type: integer, minimum: 0, example: 109 }
+        veteran: { type: boolean, example: false }
+        inactive: { type: boolean, example: false }
+        freshBlood: { type: boolean, example: false }
+      required: [puuid, tier, rank, leaguePoints, wins, losses, veteran, inactive, freshBlood]
+
+    PagePlayer:
+      type: object
+      properties:
+        content:
+          type: array
+          items: { $ref: "#/components/schemas/Player" }
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 50
+        totalElements:
+          type: integer
+          example: 1234
+        totalPages:
+          type: integer
+          example: 25
+        sort:
+          type: string
+          example: "leaguePoints,desc"
+
+    ##########################
+    # MATCH DATA SCHEMAS
+    ##########################
+    MatchDataMetadata:
+      type: object
+      additionalProperties: false
+      properties:
+        dataVersion: { type: string, example: "2" }
+        matchId: { type: string, example: "NA1_5348438296" }
+        participants:
+          type: array
+          items: { type: string, description: "PUUID" }
+      required: [dataVersion, matchId, participants]
+
+    MatchDataTeamObjectives:
+      type: object
+      additionalProperties: true
+      properties:
+        first: { type: boolean }
+        kills: { type: integer }
+
+    MatchDataTeamFeats:
+      type: object
+      additionalProperties: true
+      description: "Riot feats map, ex: FIRST_BLOOD, FIRST_TURRET…"
+      properties:
+        FIRST_BLOOD:
+          type: object
+          properties:
+            featState: { type: integer }
+
+    MatchDataTeam:
+      type: object
+      additionalProperties: false
+      properties:
+        teamId: { type: integer, enum: [100, 200] }
+        win: { type: boolean }
+        bans:
+          type: array
+          items:
+            type: object
+            properties:
+              championId: { type: integer }
+              pickTurn: { type: integer }
+        feats:
+          $ref: "#/components/schemas/MatchDataTeamFeats"
+        objectives:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/MatchDataTeamObjectives"
+
+    MatchDataParticipant:
+      type: object
+      description: "Participant unique d’une partie"
+      additionalProperties: true
+      properties:
+        puuid: { type: string }
+        participantId: { type: integer, minimum: 1, maximum: 10 }
+        teamId: { type: integer, enum: [100, 200] }
+        championId: { type: integer }
+        championName: { type: string }
+        individualPosition: { type: string, example: "TOP" }
+        teamPosition: { type: string, example: "TOP" }
+        kills: { type: integer }
+        deaths: { type: integer }
+        assists: { type: integer }
+        win: { type: boolean }
+        goldEarned: { type: integer }
+        totalDamageDealtToChampions: { type: integer }
+        totalMinionsKilled: { type: integer }
+        summonerName: { type: string }
+        summonerId: { type: string }
+        riotIdGameName: { type: string }
+        riotIdTagline: { type: string }
+        itemsPurchased: { type: integer }
+        item0: { type: integer }
+        item1: { type: integer }
+        item2: { type: integer }
+        item3: { type: integer }
+        item4: { type: integer }
+        item5: { type: integer }
+        item6: { type: integer }
+        perks:
+          type: object
+          additionalProperties: true
+
+    MatchDataInfo:
+      type: object
+      additionalProperties: false
+      properties:
+        endOfGameResult: { type: string, example: "GameComplete" }
+        gameCreation: { type: integer, format: int64, description: "epoch ms" }
+        gameDuration: { type: integer, description: "seconds" }
+        gameEndTimestamp: { type: integer, format: int64, description: "epoch ms" }
+        gameId: { type: integer, format: int64 }
+        gameMode: { type: string, example: "CLASSIC" }
+        gameName: { type: string }
+        gameStartTimestamp: { type: integer, format: int64, description: "epoch ms" }
+        gameType: { type: string, example: "MATCHED_GAME" }
+        gameVersion: { type: string, example: "15.16.704.6097" }
+        mapId: { type: integer, example: 11 }
+        platformId: { type: string, example: "NA1" }
+        queueId: { type: integer, example: 440, description: "e.g., Flex 5v5" }
+        participants:
+          type: array
+          minItems: 1
+          items: { $ref: "#/components/schemas/MatchDataParticipant" }
+        teams:
+          type: array
+          items: { $ref: "#/components/schemas/MatchDataTeam" }
+        tournamentCode: { type: string }
+
+    MatchData:
+      type: object
+      additionalProperties: false
+      properties:
+        metadata: { $ref: "#/components/schemas/MatchDataMetadata" }
+        info: { $ref: "#/components/schemas/MatchDataInfo" }
+      required: [metadata, info]
+
+    PageMatchData:
+      type: object
+      properties:
+        content:
+          type: array
+          items: { $ref: "#/components/schemas/MatchData" }
+        page: { type: integer, example: 0 }
+        size: { type: integer, example: 50 }
+        totalElements: { type: integer, example: 1234 }
+        totalPages: { type: integer, example: 25 }
+        sort: { type: string, example: "info.gameEndTimestamp,desc" }
