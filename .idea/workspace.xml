@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d348f8e1-4550-4d85-a758-3cd3a69d6cb3" name="Changes" comment="" />
+    <list default="true" id="d348f8e1-4550-4d85-a758-3cd3a69d6cb3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -17,6 +19,9 @@
         <option value="Interface" />
       </list>
     </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HttpClientEndpointsTabState">
     <option name="cachedRequestData" value="&lt;CachedHttpClientTabRequests&gt;&#10;  &lt;entry key=&quot;dd19a62b1ba4a2feb587dd9078c1bbd29d5ae5dd&quot; value=&quot;###&amp;#10;GET http://localhost:8080/api/health&quot; /&gt;&#10;  &lt;entry key=&quot;ab8b1b2ab683d24171942cf21ff80cb05228ca7a&quot; value=&quot;###&amp;#10;GET http://localhost:8080/api/match-data&quot; /&gt;&#10;&lt;/CachedHttpClientTabRequests&gt;" />
@@ -72,13 +77,15 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "954",
-    "RequestMappingsPanelWidth1": "953",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.RiotStatsApiApplication (1).executor": "Run",
     "Spring Boot.RiotStatsApiApplication.executor": "Run",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "master",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/rl213572/Documents/riot-stats-api",
@@ -107,24 +114,7 @@
       <command value="mvn -U clean package" />
     </option>
   </component>
-  <component name="RunDashboard">
-    <option name="configurationStatuses">
-      <map>
-        <entry key="HttpClient.HttpRequestRunConfigurationType">
-          <value>
-            <map>
-              <entry key="RiotStatsApiApplication | #10" value="STOPPED" />
-              <entry key="RiotStatsApiApplication | #11" value="STOPPED" />
-              <entry key="RiotStatsApiApplication | #12" value="STOPPED" />
-              <entry key="RiotStatsApiApplication | #13" value="STOPPED" />
-              <entry key="RiotStatsApiApplication | #8" value="STOPPED" />
-            </map>
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="RunManager" selected="HTTP Request.RiotStatsApiApplication | #8">
+  <component name="RunManager">
     <configuration name="RiotStatsApiApplication | #10" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/RiotStatsApiApplication.http" executionIdentifier="#10" index="10" runType="Run single request">
       <method v="2" />
     </configuration>
@@ -140,30 +130,6 @@
     <configuration name="RiotStatsApiApplication | #8" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/RiotStatsApiApplication.http" executionIdentifier="#8" index="8" runType="Run single request">
       <method v="2" />
     </configuration>
-    <list>
-      <item itemvalue="HTTP Request.RiotStatsApiApplication | #10" />
-      <item itemvalue="HTTP Request.RiotStatsApiApplication | #11" />
-      <item itemvalue="HTTP Request.RiotStatsApiApplication | #12" />
-      <item itemvalue="HTTP Request.RiotStatsApiApplication | #13" />
-      <item itemvalue="HTTP Request.RiotStatsApiApplication | #8" />
-    </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="HTTP Request.RiotStatsApiApplication | #8" />
-        <item itemvalue="HTTP Request.RiotStatsApiApplication | #10" />
-        <item itemvalue="HTTP Request.RiotStatsApiApplication | #13" />
-        <item itemvalue="HTTP Request.RiotStatsApiApplication | #12" />
-        <item itemvalue="HTTP Request.RiotStatsApiApplication | #11" />
-      </list>
-    </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
-      </set>
-    </attachedChunks>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -173,7 +139,7 @@
       <option name="presentableId" value="Default" />
       <updated>1760517675409</updated>
       <workItem from="1760521049351" duration="12726000" />
-      <workItem from="1760534743760" duration="4584000" />
+      <workItem from="1760534743760" duration="4794000" />
     </task>
     <servers />
   </component>
