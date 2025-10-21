@@ -24,9 +24,15 @@ public interface MatchIdRepository extends MongoRepository<MatchIdDoc, String> {
 
     @Aggregation(pipeline = {
       "{ $group: { _id: '$tier' } }",
-      "{ $replaceWith: '$_id' }"
+      "{ $project: { _id: 0, tier: '$_id' } }"
     })
     List<String> distinctTiers();
+
+    @Aggregation(pipeline = {
+        "{ $group: { _id: '$rank' } }",
+        "{ $project: { _id: 0, rank: '$_id' } }"
+    })
+    List<String> distinctRanks();
 
     @Query("{ $and: [ "
         + "{ $or: [ { 'tier': { $eq: ?0 } }, { ?0: { $eq: null } } ] }, "

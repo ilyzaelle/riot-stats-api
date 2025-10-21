@@ -235,6 +235,20 @@ paths:
                 type: array
                 items: { type: string, example: "PLATINUM" }
 
+  /api/match-ids/stats/distinct-ranks:
+    get:
+      tags: [match-ids]
+      summary: Obtenir la liste des ranks distincts
+      operationId: distinctRanksInMatchIds
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: string, example: "II" }
+
   # Relation: match_ids -> match_data
   /api/match-ids/{matchId}/data:
     get:

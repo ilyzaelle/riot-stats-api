@@ -113,6 +113,11 @@ public class MatchIdController {
         return ResponseEntity.ok(matchIdRepository.distinctTiers());
     }
 
+    @GetMapping("/stats/distinct-ranks")
+    public ResponseEntity<List<String>> distinctRanks() {
+        return ResponseEntity.ok(matchIdRepository.distinctRanks());
+    }
+
     @GetMapping("/{matchId}/data")
     public ResponseEntity<?> getMatchData(@PathVariable String matchId) {
         return matchDataRepository.findByMetadataMatchId(matchId)
