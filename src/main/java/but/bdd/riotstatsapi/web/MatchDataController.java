@@ -24,31 +24,6 @@ public class MatchDataController {
         this.playerRepository = playerRepository;
     }
 
-    @GetMapping
-    public ResponseEntity<PageResponse<MatchDataDoc>> list(
-            @RequestParam(required = false) String matchId,
-            @RequestParam(required = false) String platformId,
-            @RequestParam(required = false) Integer queueId,
-            @RequestParam(required = false) String gameVersion,
-            @RequestParam(required = false) Long startTimeFrom,
-            @RequestParam(required = false) Long startTimeTo,
-            @RequestParam(required = false) Integer durationMin,
-            @RequestParam(required = false) Integer durationMax,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size,
-            @RequestParam(required = false, defaultValue = "info.gameEndTimestamp,desc") String sort
-    ) {
-        String[] s = sort.split(",");
-        Sort sortObj = Sort.by(Sort.Direction.fromString(s.length>1?s[1]:"desc"), s[0]);
-        Pageable pageable = PageRequest.of(page, size, sortObj);
-
-        Page<MatchDataDoc> p = matchDataRepository.findAll(pageable);
-        List<MatchDataDoc> filtered = p.getContent().stream()
-                .filter(d -> matchId == null || (d.getMetadata()!=null && matchId.equals(d.getMetadata().getMatchId())))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(new PageResponse<>(filtered, p.getNumber(), p.getSize(), p.getTotalElements(), p.getTotalPages(), sort));
-    }
-
     @PostMapping
     public ResponseEntity<?> create(@RequestBody MatchDataDoc body) {
         String k = body.getMetadata()!=null ? body.getMetadata().getMatchId() : null;
@@ -103,11 +78,9 @@ public class MatchDataController {
 
 
     @GetMapping("/participants/by-puuid/{puuid}")
-    public ResponseEntity<PageResponse<MatchDataDoc>> getMatchesByPuuid(@PathVariable String puuid,
-                                                                        @RequestParam(defaultValue = "0") int page,
-                                                                        @RequestParam(defaultValue = "50") int size) {
-        Page<MatchDataDoc> p = matchDataRepository.findAllByParticipantPuuid(puuid, PageRequest.of(page, size));
-        return ResponseEntity.ok(new PageResponse<>(p.getContent(), p.getNumber(), p.getSize(), p.getTotalElements(), p.getTotalPages(), "info.gameEndTimestamp,desc"));
+    public ResponseEntity<List<MatchDataDoc>> getMatchesByPuuid(@PathVariable String puuid) {
+        List<MatchDataDoc> list = matchDataRepository.findAllByParticipantPuuid(puuid);
+        return ResponseEntity.ok(list); // sort "info.gameEndTimestamp,desc"
     }
 
     @GetMapping("/stats/durations")

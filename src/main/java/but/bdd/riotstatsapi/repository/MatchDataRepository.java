@@ -16,7 +16,7 @@ public interface MatchDataRepository extends MongoRepository<MatchDataDoc, Strin
     Optional<MatchDataDoc> findByMetadataMatchId(String matchId);
 
     @Query("{ 'info.participants': { $elemMatch: { 'puuid': ?0 } } }")
-    Page<MatchDataDoc> findAllByParticipantPuuid(String puuid, Pageable pageable);
+    List<MatchDataDoc> findAllByParticipantPuuid(String puuid);
 
     @Aggregation(pipeline = {
         "{ $match: { $expr: { $and: [" +

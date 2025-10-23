@@ -459,7 +459,7 @@ paths:
       description: "Leaderboard trié (par défaut LP décroissant)."
       parameters:
         - in: query
-          name: by
+          name: field
           schema:
             type: string
             enum: [lp, wins, winrate]

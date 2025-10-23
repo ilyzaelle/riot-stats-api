@@ -7,7 +7,6 @@ import but.bdd.riotstatsapi.repository.PlayerRepository;
 import but.bdd.riotstatsapi.repository.MatchDataRepository;
 import but.bdd.riotstatsapi.domain.matchdata.MatchDataDoc;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +26,7 @@ public class PlayerController {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<PlayerDoc>> list(
+    public ResponseEntity<List<PlayerDoc>> list(
             @RequestParam(required = false) Tier tier,
             @RequestParam(required = false) Rank rank,
             @RequestParam(required = false) Integer minLp,
@@ -35,15 +34,10 @@ public class PlayerController {
             @RequestParam(required = false) Boolean veteran,
             @RequestParam(required = false) Boolean inactive,
             @RequestParam(required = false) Boolean freshBlood,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size,
             @RequestParam(required = false, defaultValue = "leaguePoints,desc") String sort
     ) {
-        String[] s = sort.split(",");
-        Sort sortObj = Sort.by(Sort.Direction.fromString(s.length>1?s[1]:"desc"), s[0]);
-        Pageable pageable = PageRequest.of(page, size, sortObj);
-        Page<PlayerDoc> p = playerRepository.search(tier, rank, minLp, maxLp, veteran, inactive, freshBlood, pageable);
-        return ResponseEntity.ok(new PageResponse<>(p.getContent(), p.getNumber(), p.getSize(), p.getTotalElements(), p.getTotalPages(), sort));
+        List<PlayerDoc> p = playerRepository.search(tier, rank, minLp, maxLp, veteran, inactive, freshBlood);
+        return ResponseEntity.ok(p);
     }
 
     @PostMapping
@@ -69,10 +63,10 @@ public class PlayerController {
     }
 
     @GetMapping("/{puuid}")
-    public ResponseEntity<?> getByPuuid(@PathVariable String puuid) {
-        return playerRepository.findByPuuid(puuid)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Not found")));
+    public Optional<PlayerDoc> getByPuuid(@PathVariable String puuid) {
+        return playerRepository.findByPuuid(puuid);
+                /*.<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Not found")));*/
     }
 
     @PutMapping("/{puuid}")
@@ -112,25 +106,17 @@ public class PlayerController {
                                                    @RequestParam(required = false) Rank rank,
                                                    @RequestParam(required = false) Integer minLp,
                                                    @RequestParam(required = false) Integer maxLp) {
-        Page<PlayerDoc> p = playerRepository.search(tier, rank, minLp, maxLp, null, null, null, PageRequest.of(0,1));
+        List<PlayerDoc> p = playerRepository.search(tier, rank, minLp, maxLp, null, null, null);
         Map<String,Object> res = new java.util.LinkedHashMap<>();
-        res.put("count", p.getTotalElements());
+        res.put("count", p.size());
         return ResponseEntity.ok(res);
     }
 
     @GetMapping("/stats/leaderboard")
-    public ResponseEntity<List<PlayerDoc>> leaderboard(@RequestParam(defaultValue = "lp") String by,
-                                                       @RequestParam(required = false) Tier tier,
-                                                       @RequestParam(required = false) Rank rank,
-                                                       @RequestParam(defaultValue = "100") int limit) {
-        Sort sort = switch (by) {
-            case "wins" -> Sort.by(Sort.Direction.DESC, "wins");
-            case "winrate" -> Sort.by(Sort.Direction.DESC, "wins").and(Sort.by(Sort.Direction.ASC, "losses"));
-            default -> Sort.by(Sort.Direction.DESC, "leaguePoints");
-        };
-        Page<PlayerDoc> p = playerRepository.search(tier, rank, null, null, null, null, null,
-                PageRequest.of(0, Math.min(limit, 500), sort));
-        return ResponseEntity.ok(p.getContent());
+    public ResponseEntity<List<PlayerDoc>> leaderboard(@RequestParam(defaultValue = "leaguePoints") String field,
+                                                       @RequestParam(defaultValue = "100") Integer limit) {
+        List<PlayerDoc> list = playerRepository.leaderboard(field, limit);
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/stats/winrate/{puuid}")
@@ -155,10 +141,8 @@ public class PlayerController {
     }
 
     @GetMapping("/{puuid}/matches")
-    public ResponseEntity<PageResponse<MatchDataDoc>> matches(@PathVariable String puuid,
-                                                              @RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "50") int size) {
-        Page<MatchDataDoc> p = matchDataRepository.findAllByParticipantPuuid(puuid, PageRequest.of(page, size));
-        return ResponseEntity.ok(new PageResponse<>(p.getContent(), p.getNumber(), p.getSize(), p.getTotalElements(), p.getTotalPages(), "info.gameEndTimestamp,desc"));
+    public ResponseEntity<List<MatchDataDoc>> matches(@PathVariable String puuid) {
+        List<MatchDataDoc> list = matchDataRepository.findAllByParticipantPuuid(puuid);
+        return ResponseEntity.ok(list); // sort "info.gameEndTimestamp,desc"
     }
 }

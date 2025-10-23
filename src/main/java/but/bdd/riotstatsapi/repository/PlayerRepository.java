@@ -5,9 +5,11 @@ import but.bdd.riotstatsapi.domain.Tier;
 import but.bdd.riotstatsapi.domain.player.PlayerDoc;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PlayerRepository extends MongoRepository<PlayerDoc, String> {
@@ -29,7 +31,14 @@ public interface PlayerRepository extends MongoRepository<PlayerDoc, String> {
       }
     }"""
     )
-    Page<PlayerDoc> search(Tier tier, Rank rank, Integer minLp, Integer maxLp,
-                           Boolean veteran, Boolean inactive, Boolean freshBlood,
-                           Pageable pageable);
+    List<PlayerDoc> search(Tier tier, Rank rank, Integer minLp, Integer maxLp,
+                           Boolean veteran, Boolean inactive, Boolean freshBlood);
+
+    @Aggregation(pipeline = {
+            "{$sort: {?0: -1}}",
+            "{$limit: ?1}"
+    })
+    List<PlayerDoc> leaderboard(String field, Integer size);
+
+
 }

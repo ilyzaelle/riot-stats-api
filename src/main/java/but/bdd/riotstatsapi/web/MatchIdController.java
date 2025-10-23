@@ -26,23 +26,19 @@ public class MatchIdController {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<MatchIdDoc>> list(
+    public ResponseEntity<List<MatchIdDoc>> list(
             @RequestParam(required = false) Tier tier,
             @RequestParam(required = false) Rank rank,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size,
             @RequestParam(required = false, defaultValue = "matchId,asc") String sort
     ) {
         String[] s = sort.split(",");
-        Sort sortObj = Sort.by(Sort.Direction.fromString(s.length>1?s[1]:"asc"), s[0]);
-        Pageable pageable = PageRequest.of(page, size, sortObj);
-        Page<MatchIdDoc> p;
+        List<MatchIdDoc> list;
         if (tier != null && rank != null) {
-            p = matchIdRepository.findAllByTierAndRank(tier, rank, pageable);
+            list = matchIdRepository.findAllByTierAndRank(tier, rank);
         } else {
-            p = matchIdRepository.findAllPaged(pageable);
+            list = matchIdRepository.findAll();
         }
-        return ResponseEntity.ok(new PageResponse<>(p.getContent(), p.getNumber(), p.getSize(), p.getTotalElements(), p.getTotalPages(), sort));
+        return ResponseEntity.ok(list);
     }
 
     @PostMapping

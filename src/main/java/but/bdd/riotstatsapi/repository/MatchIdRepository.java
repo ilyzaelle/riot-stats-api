@@ -17,10 +17,10 @@ public interface MatchIdRepository extends MongoRepository<MatchIdDoc, String> {
     Optional<MatchIdDoc> findByMatchId(String matchId);
 
     @Query("{ $and: [ { 'tier': { $eq: ?0 } }, { 'rank': { $eq: ?1 } } ] }")
-    Page<MatchIdDoc> findAllByTierAndRank(Tier tier, Rank rank, Pageable pageable);
+    List<MatchIdDoc> findAllByTierAndRank(Tier tier, Rank rank);
 
     @Query("{ }")
-    Page<MatchIdDoc> findAllPaged(Pageable pageable);
+    List<MatchIdDoc> findAll();
 
     @Aggregation(pipeline = {
       "{ $group: { _id: '$tier' } }",
