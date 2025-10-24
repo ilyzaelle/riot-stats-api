@@ -32,10 +32,10 @@ public interface MatchDataRepository extends MongoRepository<MatchDataDoc, Strin
 
     @Aggregation(pipeline = {
         "{ $unwind: '$info.participants' }",
-        "{ $group: { _id: '$info.participants.championId', count: { $sum: 1 } } }",
+        "{ $group: { _id: '$info.participants.championId', count: { $sum: 1 }, championName: { $first: '$info.participants.championName' } } }",
         "{ $sort: { count: -1 } }",
         "{ $limit: ?0 }",
-        "{ $project: { _id: 0, championId: '$_id', count: 1 } }"
+        "{ $project: { _id: 0, championId: '$_id', championName: 1, count: 1 } }"
     })
     List<ChampionCountView> championFrequency(int limit);
 
@@ -47,8 +47,9 @@ public interface MatchDataRepository extends MongoRepository<MatchDataDoc, Strin
         "{ $unwind: '$info.participants' }",
         "{ $group: { _id: '$info.participants.championId', " +
         "games: { $sum: 1 }, " +
-        "wins: { $sum: { $cond: [ '$info.participants.win', 1, 0 ] } } } }",
-        "{ $project: { _id: 0, championId: '$_id', games: 1, wins: 1, " +
+        "wins: { $sum: { $cond: [ '$info.participants.win', 1, 0 ] } }, " +
+        "championName: { $first: '$info.participants.championName' } } }",
+        "{ $project: { _id: 0, championId: '$_id', championName: 1, games: 1, wins: 1, " +
         "winrate: { $multiply: [ { $cond: [ { $eq: ['$games', 0] }, 0, { $divide: ['$wins', '$games'] } ] }, 100 ] } } }",
         "{ $sort: { games: -1 } }"
     })

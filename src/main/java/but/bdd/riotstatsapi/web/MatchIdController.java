@@ -121,3 +121,4 @@ public class MatchIdController {
                 .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Not found")));
     }
 }
+

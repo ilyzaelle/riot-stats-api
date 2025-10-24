@@ -780,6 +780,7 @@ paths:
                   type: object
                   properties:
                     championId: { type: integer }
+                    championName: { type: string, example: "Ahri" }
                     count: { type: integer }
 
   /api/match-data/stats/winrate-by-champion:
@@ -805,6 +806,7 @@ paths:
                   type: object
                   properties:
                     championId: { type: integer }
+                    championName: { type: string, example: "Ahri" }
                     games: { type: integer }
                     wins: { type: integer }
                     winrate: { type: number, format: float, example: 52.3 }
@@ -860,6 +862,14 @@ components:
         sort:
           type: string
           example: "matchId,asc"
+
+    AverageRank:
+      type: object
+      additionalProperties: false
+      properties:
+        tier: { $ref: "#/components/schemas/Tier" }
+        rank: { $ref: "#/components/schemas/Rank" }
+      required: [tier, rank]
 
     ##########################
     # PLAYERS SCHEMAS

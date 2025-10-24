@@ -115,6 +115,7 @@ public class MatchDataController {
         var res = views.stream().map(v -> {
             var m = new LinkedHashMap<String, Object>();
             m.put("championId", v.getChampionId());
+            m.put("championName", v.getChampionName());
             m.put("count", v.getCount());
             return m;
         }).toList();
@@ -128,6 +129,7 @@ public class MatchDataController {
         var res = views.stream().map(v -> {
             var m = new LinkedHashMap<String,Object>();
             m.put("championId", v.getChampionId());
+            m.put("championName", v.getChampionName());
             m.put("games", v.getGames());
             m.put("wins", v.getWins());
             m.put("winrate", v.getWinrate());
