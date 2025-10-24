@@ -2,9 +2,9 @@ package but.bdd.riotstatsapi.web;
 
 import but.bdd.riotstatsapi.domain.Rank;
 import but.bdd.riotstatsapi.domain.Tier;
-import but.bdd.riotstatsapi.domain.matchdata.MatchDataDoc;
-import but.bdd.riotstatsapi.domain.player.PlayerDoc;
-import but.bdd.riotstatsapi.domain.matchid.MatchIdDoc;
+import but.bdd.riotstatsapi.domain.MatchDataDoc;
+import but.bdd.riotstatsapi.domain.PlayerDoc;
+import but.bdd.riotstatsapi.domain.MatchIdDoc;
 import but.bdd.riotstatsapi.repository.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;

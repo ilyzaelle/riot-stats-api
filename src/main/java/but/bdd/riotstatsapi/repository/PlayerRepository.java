@@ -2,9 +2,7 @@ package but.bdd.riotstatsapi.repository;
 
 import but.bdd.riotstatsapi.domain.Rank;
 import but.bdd.riotstatsapi.domain.Tier;
-import but.bdd.riotstatsapi.domain.player.PlayerDoc;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import but.bdd.riotstatsapi.domain.PlayerDoc;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -18,7 +16,7 @@ public interface PlayerRepository extends MongoRepository<PlayerDoc, String> {
 
     @Query("""
 {
-      $expr: {
+      "$expr": {
         $and: [
           { $or: [ { $eq: [?0, null] }, { $eq: ['$tier', ?0] } ] },
           { $or: [ { $eq: [?1, null] }, { $eq: ['$rank', ?1] } ] },

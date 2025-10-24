@@ -1,7 +1,5 @@
-package but.bdd.riotstatsapi.domain.matchid;
+package but.bdd.riotstatsapi.domain;
 
-import but.bdd.riotstatsapi.domain.Rank;
-import but.bdd.riotstatsapi.domain.Tier;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.bson.types.ObjectId;

@@ -2,8 +2,8 @@ package but.bdd.riotstatsapi.repository;
 
 import but.bdd.riotstatsapi.domain.Rank;
 import but.bdd.riotstatsapi.domain.Tier;
-import but.bdd.riotstatsapi.domain.matchdata.MatchDataDoc;
-import but.bdd.riotstatsapi.domain.matchid.MatchIdDoc;
+import but.bdd.riotstatsapi.domain.MatchDataDoc;
+import but.bdd.riotstatsapi.domain.MatchIdDoc;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,7 +21,6 @@ public class DefaultMatchRepository implements MatchRepository {
         this.matchDataRepository = matchDataRepository;
     }
 
-    // --- MatchId ---
     @Override
     public List<MatchIdDoc> listMatchIds(Tier tier, Rank rank) {
         if (tier != null && rank != null) {

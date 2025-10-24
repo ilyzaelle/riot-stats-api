@@ -2,10 +2,10 @@ package but.bdd.riotstatsapi.web;
 
 import but.bdd.riotstatsapi.domain.Rank;
 import but.bdd.riotstatsapi.domain.Tier;
-import but.bdd.riotstatsapi.domain.player.PlayerDoc;
+import but.bdd.riotstatsapi.domain.PlayerDoc;
 import but.bdd.riotstatsapi.repository.PlayerRepository;
 import but.bdd.riotstatsapi.repository.MatchDataRepository;
-import but.bdd.riotstatsapi.domain.matchdata.MatchDataDoc;
+import but.bdd.riotstatsapi.domain.MatchDataDoc;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -95,6 +95,6 @@ public class PlayerController {
     @GetMapping("/{puuid}/matches")
     public ResponseEntity<List<MatchDataDoc>> matches(@PathVariable String puuid) {
         List<MatchDataDoc> list = matchDataRepository.findAllByParticipantPuuid(puuid);
-        return ResponseEntity.ok(list); // sort "info.gameEndTimestamp,desc"
+        return ResponseEntity.ok(list);
     }
 }

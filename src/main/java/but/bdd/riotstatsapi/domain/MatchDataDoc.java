@@ -1,4 +1,4 @@
-package but.bdd.riotstatsapi.domain.matchdata;
+package but.bdd.riotstatsapi.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
