@@ -33,8 +33,7 @@ public class PlayerController {
             @RequestParam(required = false) Integer maxLp,
             @RequestParam(required = false) Boolean veteran,
             @RequestParam(required = false) Boolean inactive,
-            @RequestParam(required = false) Boolean freshBlood,
-            @RequestParam(required = false, defaultValue = "leaguePoints,desc") String sort
+            @RequestParam(required = false) Boolean freshBlood
     ) {
         List<PlayerDoc> p = playerRepository.search(tier, rank, minLp, maxLp, veteran, inactive, freshBlood);
         return ResponseEntity.ok(p);

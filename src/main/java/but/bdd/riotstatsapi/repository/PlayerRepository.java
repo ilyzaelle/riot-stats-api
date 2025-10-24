@@ -15,7 +15,7 @@ public interface PlayerRepository extends MongoRepository<PlayerDoc, String> {
     Optional<PlayerDoc> findByPuuid(String puuid);
 
     @Query("""
-{
+    {
       "$expr": {
         $and: [
           { $or: [ { $eq: [?0, null] }, { $eq: ['$tier', ?0] } ] },
