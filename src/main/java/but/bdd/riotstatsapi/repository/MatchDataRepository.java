@@ -54,4 +54,313 @@ public interface MatchDataRepository extends MongoRepository<MatchDataDoc, Strin
         "{ $sort: { games: -1 } }"
     })
     List<WinrateByChampionView> winrateByChampion(Integer queueId, String platformId);
+
+    @Aggregation(pipeline = {
+            """
+   {
+     $match: {
+       "info.participants.puuid": {
+         $eq: "?0"
+       }
+     }
+   }""",
+            """
+   {
+     $unwind: "$info.participants"
+   }""",
+            """
+   {
+     $set: {
+       puuid: "$info.participants.puuid",
+       riotName: {
+         $concat: [
+           "$info.participants.riotIdGameName",
+           "#",
+           "$info.participants.riotIdTagline"
+         ]
+       },
+       champion: "$info.participants.championName",
+       role: "$info.participants.individualPosition",
+       winFlag: "$info.participants.win"
+     }
+   }""",
+            """
+   {
+     $match: {
+       puuid: {
+         $type: "string",
+         $ne: ""
+       },
+       champion: {
+         $type: "string",
+         $ne: ""
+       },
+       role: {
+         $type: "string",
+         $nin: ["", "NONE", "INVALID"]
+       },
+       riotName: {
+         $regex: ".+#.+"
+       }
+     }
+   }""",
+            """
+   {
+     $group: {
+       _id: {
+         puuid: "$puuid",
+         riotName: "$riotName",
+         role: "$role",
+         champion: "$champion"
+       },
+       games: {
+         $sum: 1
+       },
+       wins: {
+         $sum: {
+           $cond: ["$winFlag", 1, 0]
+         }
+       }
+     }
+   }""",
+            """
+   {
+     $set: {
+       puuid: "$_id.puuid",
+       riotName: "$_id.riotName",
+       role: "$_id.role",
+       champion: "$_id.champion"
+     }
+   }""",
+            """
+   {
+     $unset: "_id"
+   }""",
+            """
+   {
+     $addFields: {
+       winrate: {
+         $multiply: [
+           {
+             $divide: ["$wins", "$games"]
+           },
+           100
+         ]
+       }
+     }
+   }""",
+            """
+   {
+     $sort: {
+       puuid: 1,
+       role: 1,
+       games: -1,
+       wins: -1,
+       champion: 1
+     }
+   }""",
+            """
+   {
+     $group: {
+       _id: {
+         puuid: "$puuid",
+         riotName: "$riotName",
+         role: "$role"
+       },
+       totalRoleGames: {
+         $sum: "$games"
+       },
+       totalRoleWins: {
+         $sum: "$wins"
+       },
+       favChampion: {
+         $first: "$champion"
+       },
+       favChampionGames: {
+         $first: "$games"
+       },
+       favChampionWins: {
+         $first: "$wins"
+       },
+       favChampionWinrate: {
+         $first: {
+           $round: ["$winrate", 2]
+         }
+       }
+     }
+   }""",
+            """
+   {
+     $sort: {
+       "_id.puuid": 1,
+       totalRoleGames: -1
+     }
+   }""",
+            """
+   {
+     $group: {
+       _id: {
+         puuid: "$_id.puuid",
+         riotName: "$_id.riotName"
+       },
+       roles: {
+         $push: {
+           role: "$_id.role",
+           games: "$totalRoleGames",
+           wins: "$totalRoleWins",
+           winrate: {
+             $round: [
+               {
+                 $multiply: [
+                   {
+                     $divide: [
+                       "$totalRoleWins",
+                       "$totalRoleGames"
+                     ]
+                   },
+                   100
+                 ]
+               },
+               2
+             ]
+           },
+           favoriteChampion: {
+             name: "$favChampion",
+             games: "$favChampionGames",
+             wins: "$favChampionWins",
+             winrate: "$favChampionWinrate"
+           }
+         }
+       },
+       totalGames: {
+         $sum: "$totalRoleGames"
+       },
+       totalWins: {
+         $sum: "$totalRoleWins"
+       }
+     }
+   }""",
+            """
+   {
+     $addFields: {
+       winrate: {
+         $round: [
+           {
+             $multiply: [
+               {
+                 $divide: [
+                   "$totalWins",
+                   "$totalGames"
+                 ]
+               },
+               100
+             ]
+           },
+           2
+         ]
+       }
+     }
+   }""",
+            """
+   {
+     $match: {
+       "_id.puuid": {
+         $eq: "?0"
+       }
+     }
+   }""",
+            """
+   {
+     $project: {
+       _id: 0,
+       puuid: "$_id.puuid",
+       riotName: "$_id.riotName",
+       totalGames: 1,
+       totalWins: 1,
+       winrate: 1,
+       roles: 1
+     }
+   }
+"""
+    })
+    PlayerRolesView getPlayerWithRolesStatistics(String puuid);
+
+    @Aggregation(pipeline = {
+            """
+           {
+                $match: {
+                    "info.participants.championName": {
+                        $eq: ?0
+                    }
+                }
+            }""",
+            """
+            { $unwind: "$info.participants" }
+            """,
+            """
+            { $set: {
+                champion: "$info.participants.championName",
+                role: "$info.participants.individualPosition",
+                winFlag: "$info.participants.win"
+            } }
+            """,
+            """
+            { $match: {
+                champion: { $type: "string", $ne: "" },
+                role: { $type: "string", $nin: ["", "NONE", "INVALID"] }
+            } }
+            """,
+            """
+            { $group: {
+                _id: { champion: "$champion", role: "$role" },
+                games: { $sum: 1 },
+                wins: { $sum: { $cond: ["$winFlag", 1, 0] } }
+            } }
+            """,
+            """
+            { $addFields: {
+                winrate: { $multiply: [ { $divide: ["$wins", "$games"] }, 100 ] }
+            } }
+            """,
+            """
+            { $sort: { "_id.champion": 1, games: -1 } }
+            """,
+            """
+            { $group: {
+                _id: "$_id.champion",
+                roles: {
+                    $push: {
+                        role: "$_id.role",
+                        games: "$games",
+                        wins: "$wins",
+                        winrate: { $round: ["$winrate", 2] }
+                    }
+                },
+                totalGames: { $sum: "$games" }
+            } }
+            """,
+            """
+            { $addFields: { picks: "$totalGames" } }
+            """,
+            """
+            { $project: {
+                _id: 0,
+                champion: "$_id",
+                roles: 1,
+                picks: 1
+            } }
+            """,
+            """
+           {
+                $match: {
+                    "champion": {
+                        $eq: ?0
+                    }
+                }
+            }""",
+            """
+            { $sort: { picks: -1, champion: 1 } }
+            """
+    })
+    ChampionStatisticsView getChampionStatistics(String champion);
 }
