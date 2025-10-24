@@ -49,7 +49,6 @@ public class DefaultMatchRepository implements MatchRepository {
         return matchIdRepository.distinctRanks();
     }
 
-    // --- MatchData ---
     @Override
     public Optional<MatchDataDoc> findMatchData(String matchId) {
         return matchDataRepository.findByMetadataMatchId(matchId);
@@ -65,7 +64,6 @@ public class DefaultMatchRepository implements MatchRepository {
         return matchDataRepository.findAllByParticipantPuuid(puuid).size();
     }
 
-    // --- Delete synchronisé ---
     @Override
     public boolean deleteEverywhere(String matchId) {
         boolean deleted = false;
@@ -85,7 +83,6 @@ public class DefaultMatchRepository implements MatchRepository {
         return deleted;
     }
 
-    // --- Stats ---
     @Override
     public List<DurationStatsView> durationsStats(Integer queueId, String platformId, Long startTimeFrom, Long startTimeTo) {
         return matchDataRepository.durationsStats(queueId, platformId, startTimeFrom, startTimeTo);

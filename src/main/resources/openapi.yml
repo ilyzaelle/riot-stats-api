@@ -1,0 +1,685 @@
+openapi: 3.0.3
+info:
+  title: Riot Stats API
+  version: 1.0.0
+  description: 'API REST pour trois collections MongoDB: match_ids, players, match_data.'
+servers:
+- url: http://localhost:8080
+  description: Local
+tags:
+- name: health
+- name: players
+- name: matches
+paths:
+  /api/health:
+    get:
+      tags:
+      - health
+      summary: Vérifier l'état de l'API
+      responses:
+        '200':
+          description: Statut UP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+  /api/players:
+    get:
+      tags:
+      - players
+      summary: Lister les joueurs avec filtres
+      parameters:
+      - name: tier
+        in: query
+        schema:
+          $ref: '#/components/schemas/Tier'
+      - name: rank
+        in: query
+        schema:
+          $ref: '#/components/schemas/Rank'
+      - name: minLp
+        in: query
+        schema:
+          type: integer
+      - name: maxLp
+        in: query
+        schema:
+          type: integer
+      - name: veteran
+        in: query
+        schema:
+          type: boolean
+      - name: inactive
+        in: query
+        schema:
+          type: boolean
+      - name: freshBlood
+        in: query
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Liste de joueurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlayerDoc'
+  /api/players/{puuid}:
+    get:
+      tags:
+      - players
+      summary: Obtenir un joueur par son PUUID
+      parameters:
+      - name: puuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Joueur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerDoc'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - players
+      summary: Supprimer un joueur par PUUID
+      parameters:
+      - name: puuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Supprimé
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/players/{puuid}/matches:
+    get:
+      tags:
+      - players
+      summary: Lister les matchs d'un joueur (par PUUID)
+      parameters:
+      - name: puuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Liste de matchs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchDataDoc'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/players/stats/count:
+    get:
+      tags:
+      - players
+      summary: Compter les joueurs (filtres)
+      parameters:
+      - name: tier
+        in: query
+        schema:
+          $ref: '#/components/schemas/Tier'
+      - name: rank
+        in: query
+        schema:
+          $ref: '#/components/schemas/Rank'
+      - name: minLp
+        in: query
+        schema:
+          type: integer
+      - name: maxLp
+        in: query
+        schema:
+          type: integer
+      - name: veteran
+        in: query
+        schema:
+          type: boolean
+      - name: inactive
+        in: query
+        schema:
+          type: boolean
+      - name: freshBlood
+        in: query
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Compteur
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /api/players/stats/leaderboard:
+    get:
+      tags:
+      - players
+      summary: Leaderboard des joueurs
+      parameters:
+      - name: tier
+        in: query
+        schema:
+          $ref: '#/components/schemas/Tier'
+      - name: rank
+        in: query
+        schema:
+          $ref: '#/components/schemas/Rank'
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 100
+      responses:
+        '200':
+          description: Top joueurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlayerDoc'
+  /api/players/stats/winrate/{puuid}:
+    get:
+      tags:
+      - players
+      summary: Winrate d'un joueur
+      parameters:
+      - name: puuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Statistiques de winrate
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/matches/{matchId}:
+    get:
+      tags:
+      - matches
+      summary: Obtenir les données d'un match
+      parameters:
+      - name: matchId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Données du match
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchDataDoc'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - matches
+      summary: Supprimer un match partout (ids & data)
+      parameters:
+      - name: matchId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Supprimé
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/matches/{matchId}/players:
+    get:
+      tags:
+      - matches
+      summary: Lister les joueurs d'un match
+      parameters:
+      - name: matchId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Joueurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlayerDoc'
+  /api/matches/ids:
+    get:
+      tags:
+      - matches
+      summary: Lister les IDs de match
+      parameters:
+      - name: tier
+        in: query
+        schema:
+          $ref: '#/components/schemas/Tier'
+      - name: rank
+        in: query
+        schema:
+          $ref: '#/components/schemas/Rank'
+      responses:
+        '200':
+          description: Liste des IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchIdDoc'
+  /api/matches/ids/{matchId}:
+    get:
+      tags:
+      - matches
+      summary: Obtenir un ID de match
+      parameters:
+      - name: matchId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ID de match
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchIdDoc'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/matches/ids/stats/count:
+    get:
+      tags:
+      - matches
+      summary: Compter les IDs de match
+      parameters:
+      - name: tier
+        in: query
+        schema:
+          $ref: '#/components/schemas/Tier'
+      - name: rank
+        in: query
+        schema:
+          $ref: '#/components/schemas/Rank'
+      responses:
+        '200':
+          description: Compteur
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /api/matches/ids/stats/distinct-tiers:
+    get:
+      tags:
+      - matches
+      summary: Lister les tiers distincts présents dans match_ids
+      responses:
+        '200':
+          description: Tiers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/matches/ids/stats/distinct-ranks:
+    get:
+      tags:
+      - matches
+      summary: Lister les ranks distincts présents dans match_ids
+      responses:
+        '200':
+          description: Ranks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/matches/participants/{puuid}:
+    get:
+      tags:
+      - matches
+      summary: Lister les matchs d'un participant
+      parameters:
+      - name: puuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Matchs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchDataDoc'
+  /api/matches/participants/{puuid}/count:
+    get:
+      tags:
+      - matches
+      summary: Compter les matchs d'un participant
+      parameters:
+      - name: puuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Nombre de matchs
+          content:
+            application/json:
+              schema:
+                type: integer
+  /api/matches/stats/durations:
+    get:
+      tags:
+      - matches
+      summary: Statistiques sur les durées de matchs
+      parameters:
+      - name: queueId
+        in: query
+        schema:
+          type: integer
+      - name: platformId
+        in: query
+        schema:
+          type: string
+      - name: startTimeFrom
+        in: query
+        schema:
+          type: integer
+          format: int64
+      - name: startTimeTo
+        in: query
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Distribution / stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+  /api/matches/stats/champions:
+    get:
+      tags:
+      - matches
+      summary: Fréquence des champions
+      parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 50
+      responses:
+        '200':
+          description: Top champions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChampionCountView'
+  /api/matches/stats/winrate-by-champion:
+    get:
+      tags:
+      - matches
+      summary: Winrate par champion
+      parameters:
+      - name: queueId
+        in: query
+        schema:
+          type: integer
+      - name: platformId
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Winrates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WinrateByChampionView'
+  /api/matches/stats/players/{puuid}:
+    get:
+      tags:
+      - matches
+      summary: Statistiques d'un joueur par rôles (agrégées)
+      parameters:
+      - name: puuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Stats par rôles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerRolesView'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/matches/stats/champions/{champion}:
+    get:
+      tags:
+      - matches
+      summary: Statistiques complètes pour un champion
+      parameters:
+      - name: champion
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Stats du champion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChampionStatisticsView'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Tier:
+      type: string
+      enum:
+      - CHALLENGER
+      - DIAMOND
+      - EMERALD
+      - MASTER
+      - PLATINUM
+    Rank:
+      type: string
+      enum:
+      - I
+      - II
+      - III
+      - IV
+    PlayerDoc:
+      type: object
+      properties:
+        puuid:
+          type: string
+        tier:
+          $ref: '#/components/schemas/Tier'
+        rank:
+          $ref: '#/components/schemas/Rank'
+        leaguePoints:
+          type: integer
+        wins:
+          type: integer
+        losses:
+          type: integer
+        veteran:
+          type: boolean
+        inactive:
+          type: boolean
+        freshBlood:
+          type: boolean
+      required:
+      - puuid
+      - tier
+      - rank
+      - wins
+      - losses
+    MatchIdDoc:
+      type: object
+      properties:
+        matchId:
+          type: string
+        tier:
+          $ref: '#/components/schemas/Tier'
+        rank:
+          $ref: '#/components/schemas/Rank'
+      required:
+      - matchId
+    MatchDataDoc:
+      type: object
+      description: Représentation d'un match complet tel que stocké dans MongoDB (structure
+        détaillée non incluse ici).
+    ChampionView:
+      type: object
+      properties:
+        name:
+          type: string
+        games:
+          type: integer
+        wins:
+          type: integer
+        winrate:
+          type: number
+          format: double
+    RoleView:
+      type: object
+      properties:
+        role:
+          type: string
+        games:
+          type: integer
+        wins:
+          type: integer
+        winrate:
+          type: number
+          format: double
+    PlayerRoleView:
+      type: object
+      properties:
+        role:
+          type: string
+        games:
+          type: integer
+        wins:
+          type: integer
+        winrate:
+          type: number
+          format: double
+        favoriteChampion:
+          $ref: '#/components/schemas/ChampionView'
+    PlayerRolesView:
+      type: object
+      properties:
+        puuid:
+          type: string
+        riotName:
+          type: string
+        totalGames:
+          type: integer
+        totalWins:
+          type: integer
+        winrate:
+          type: number
+          format: double
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlayerRoleView'
+    WinrateByChampionView:
+      type: object
+      properties:
+        championId:
+          type: integer
+        championName:
+          type: string
+        games:
+          type: integer
+        wins:
+          type: integer
+        winrate:
+          type: number
+          format: double
+    ChampionCountView:
+      type: object
+      properties:
+        championId:
+          type: integer
+        championName:
+          type: string
+        count:
+          type: integer
+    ChampionStatisticsView:
+      type: object
+      properties:
+        champion:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleView'
+        summary:
+          type: object
+          properties:
+            games:
+              type: integer
+            wins:
+              type: integer
+            winrate:
+              type: number
+              format: double
+            favoriteChampion:
+              $ref: '#/components/schemas/ChampionView'
+  responses:
+    NotFound:
+      description: Ressource introuvable
