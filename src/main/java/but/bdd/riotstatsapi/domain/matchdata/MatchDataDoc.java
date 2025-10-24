@@ -1,9 +1,12 @@
 package but.bdd.riotstatsapi.domain.matchdata;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -15,8 +18,12 @@ import java.util.Map;
 @JsonInclude(Include.NON_NULL)
 public class MatchDataDoc {
     @Id
+    @JsonIgnore
+    private ObjectId id;
+
+    @Indexed(unique = true)
     @Field("metadata.matchId")
-    private String matchIdKey;
+    private String matchId;
 
     private Metadata metadata;
     private Info info;

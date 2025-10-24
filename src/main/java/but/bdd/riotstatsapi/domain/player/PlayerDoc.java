@@ -17,12 +17,10 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 @Document("players")
 public class PlayerDoc {
-    // Identifiant technique MongoDB — caché dans les réponses JSON
     @Id
     @JsonIgnore
     private ObjectId id;
 
-    // Clé métier : unique + indexée
     @Indexed(unique = true)
     @Field("puuid")
     private String puuid;

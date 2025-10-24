@@ -29,7 +29,7 @@ public class MatchDataController {
         String k = body.getMetadata()!=null ? body.getMetadata().getMatchId() : null;
         if (k == null) return ResponseEntity.badRequest().body(Map.of("error","metadata.matchId is required"));
         if (matchDataRepository.findByMetadataMatchId(k).isPresent()) return ResponseEntity.status(409).body(Map.of("error","Already exists"));
-        body.setMatchIdKey(k);
+        body.setMatchId(k);
         return ResponseEntity.status(201).body(matchDataRepository.save(body));
     }
 
@@ -40,7 +40,7 @@ public class MatchDataController {
             String k = d.getMetadata()!=null ? d.getMetadata().getMatchId() : null;
             if (k == null) continue;
             boolean exists = matchDataRepository.findByMetadataMatchId(k).isPresent();
-            d.setMatchIdKey(k);
+            d.setMatchId(k);
             matchDataRepository.save(d);
             if (exists) updated++; else inserted++;
         }
@@ -77,10 +77,16 @@ public class MatchDataController {
     }
 
 
-    @GetMapping("/participants/by-puuid/{puuid}")
+    @GetMapping("/participants/{puuid}")
     public ResponseEntity<List<MatchDataDoc>> getMatchesByPuuid(@PathVariable String puuid) {
         List<MatchDataDoc> list = matchDataRepository.findAllByParticipantPuuid(puuid);
         return ResponseEntity.ok(list); // sort "info.gameEndTimestamp,desc"
+    }
+
+    @GetMapping("/participants/{puuid}/count")
+    public ResponseEntity<Integer> countMatchesByPuuid(@PathVariable String puuid) {
+        List<MatchDataDoc> list = matchDataRepository.findAllByParticipantPuuid(puuid);
+        return ResponseEntity.ok(list.size()); // sort "info.gameEndTimestamp,desc"
     }
 
     @GetMapping("/stats/durations")
