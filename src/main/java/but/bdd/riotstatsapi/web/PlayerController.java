@@ -40,57 +40,9 @@ public class PlayerController {
         return ResponseEntity.ok(p);
     }
 
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody PlayerDoc body) {
-        if (playerRepository.findByPuuid(body.getPuuid()).isPresent()) return ResponseEntity.status(409).body(Map.of("error","Already exists"));
-        return ResponseEntity.status(201).body(playerRepository.save(body));
-    }
-
-    @PostMapping("/bulk")
-    public ResponseEntity<Map<String, Integer>> bulkUpsert(@RequestBody List<PlayerDoc> docs) {
-        int inserted=0, updated=0;
-        for (PlayerDoc d : docs) {
-            Optional<PlayerDoc> existing = playerRepository.findByPuuid(d.getPuuid());
-            if (existing.isPresent()) {
-                playerRepository.save(d);
-                updated++;
-            } else {
-                playerRepository.save(d);
-                inserted++;
-            }
-        }
-        return ResponseEntity.ok(Map.of("inserted", inserted, "updated", updated, "total", inserted+updated));
-    }
-
     @GetMapping("/{puuid}")
     public Optional<PlayerDoc> getByPuuid(@PathVariable String puuid) {
         return playerRepository.findByPuuid(puuid);
-                /*.<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Not found")));*/
-    }
-
-    @PutMapping("/{puuid}")
-    public ResponseEntity<?> put(@PathVariable String puuid, @RequestBody PlayerDoc body) {
-        Optional<PlayerDoc> existing = playerRepository.findByPuuid(puuid);
-        if (existing.isEmpty()) return ResponseEntity.status(404).body(Map.of("error","Not found"));
-        body.setPuuid(puuid);
-        return ResponseEntity.ok(playerRepository.save(body));
-    }
-
-    @PatchMapping("/{puuid}")
-    public ResponseEntity<?> patch(@PathVariable String puuid, @RequestBody Map<String, Object> patch) {
-        Optional<PlayerDoc> existing = playerRepository.findByPuuid(puuid);
-        if (existing.isEmpty()) return ResponseEntity.status(404).body(Map.of("error","Not found"));
-        PlayerDoc e = existing.get();
-        if (patch.containsKey("tier")) e.setTier(Tier.valueOf(String.valueOf(patch.get("tier"))));
-        if (patch.containsKey("rank")) e.setRank(Rank.valueOf(String.valueOf(patch.get("rank"))));
-        if (patch.containsKey("leaguePoints")) e.setLeaguePoints((Integer) patch.get("leaguePoints"));
-        if (patch.containsKey("wins")) e.setWins((Integer) patch.get("wins"));
-        if (patch.containsKey("losses")) e.setLosses((Integer) patch.get("losses"));
-        if (patch.containsKey("veteran")) e.setVeteran((Boolean) patch.get("veteran"));
-        if (patch.containsKey("inactive")) e.setInactive((Boolean) patch.get("inactive"));
-        if (patch.containsKey("freshBlood")) e.setFreshBlood((Boolean) patch.get("freshBlood"));
-        return ResponseEntity.ok(playerRepository.save(e));
     }
 
     @DeleteMapping("/{puuid}")
